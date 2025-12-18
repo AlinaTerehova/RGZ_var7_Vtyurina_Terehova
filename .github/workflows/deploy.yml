@@ -3,11 +3,15 @@ name: CI
 on:
   push:
     branches:
-      - main
+      - master  
 
 jobs:
   test-and-security:
     runs-on: ubuntu-latest
+
+    env:
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
     steps:
       - name: Checkout repository
