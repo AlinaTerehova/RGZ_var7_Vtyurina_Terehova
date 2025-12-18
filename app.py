@@ -8,7 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, User, Ticket
 
 load_dotenv()
-
+ 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
@@ -112,16 +112,22 @@ def get_ticket(ticket_id):
 
     return jsonify(response)
 
-
 @app.route('/tickets/<int:ticket_id>', methods=['PUT'])
 @login_required
 def update_ticket(ticket_id):
     ticket = Ticket.query.get_or_404(ticket_id)
+    
     if current_user.role != 'admin' and ticket.user_id != current_user.id:
         return jsonify(message='Not enough permissions'), 403
-
+    
     data = request.json
-    ticket.status = data.get('status', ticket.status)
+    if 'title' in data:
+        ticket.title = data['title']
+    if 'description' in data:
+        ticket.description = data['description']
+    if 'status' in data:
+        ticket.status = data['status']
+    
     db.session.commit()
     return jsonify(message='Ticket successfully updated')
 
